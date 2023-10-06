@@ -127,3 +127,16 @@ void shell::jobs_shell(){
     msg << "System time =\t" << times.second << "\tseconds" << std::endl;
     std::cout << msg.str() << std::endl;
 }
+
+void shell::exit_shell(){
+    while(wait(nullptr) != -1){
+        ;
+    }
+    std::ostringstream msg;
+    msg << "Resources used" << std::endl;
+    std::pair<int, int> times = get_user_sys_times();
+    msg << "User time =\t" << times.first << "\tseconds" << std::endl;
+    msg << "System time =\t" << times.second << "\tseconds" << std::endl;
+    std::cout << msg.str() << std::endl;
+    exit(EXIT_SUCCESS);
+}

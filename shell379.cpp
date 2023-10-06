@@ -33,7 +33,7 @@ int main(){
         }
 
         if(cmd[0] == "exit"){
-
+            shell_instance.exit_shell();
         }else if(cmd[0] == "jobs"){
             shell_instance.jobs_shell();
         }else if(cmd[0] == "kill"){
