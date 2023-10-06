@@ -76,9 +76,14 @@ int shell::get_real_time(int pid){
     char buf[255];
     fgets(buf, 255, pipe); // throws away the first line
     fgets(buf, 255, pipe);
-    if(feof(pipe)){
-        // there is only one line
-        // returns -1 to indicate the process has exited
+    // if(feof(pipe)){
+    //     // there is only one line
+    //     // returns -1 to indicate the process has exited
+    //     pclose(pipe);
+    //     return -1;
+    // }
+    if(strcmp(buf + (strlen(buf) - 10), "<defunct>\n") == 0){
+        waitpid(pid, nullptr, 0);
         pclose(pipe);
         return -1;
     }
