@@ -140,3 +140,18 @@ void shell::exit_shell(){
     std::cout << msg.str() << std::endl;
     exit(EXIT_SUCCESS);
 }
+
+void shell::kill_shell(std::vector<std::string> cmd){
+    if(cmd.size() == 1){
+        std::cout << "Please specify at least a pid" << std::endl;
+        return;
+    }
+    int pid;
+    for(std::vector<std::string>::size_type i = 1; i < cmd.size(); ++i){
+        pid = std::stoi(cmd[i]);
+        if(kill(pid, SIGTERM) == -1){
+            perror("failed to kill process " + pid);
+            exit(EXIT_FAILURE);
+        }
+    }
+}

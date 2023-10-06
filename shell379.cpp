@@ -9,7 +9,8 @@ void on_child_terminating(int signum){
     int status;
     int pid;
     while((pid = waitpid(-1, &status, WNOHANG)) > 0){
-        if(WIFEXITED(status)){
+        // normally terminated or terminated by a signal
+        if(WIFEXITED(status) || WIFSIGNALED(status)){
             shell_instance.pcb.erase(pid);
         }
     }
@@ -37,7 +38,7 @@ int main(){
         }else if(cmd[0] == "jobs"){
             shell_instance.jobs_shell();
         }else if(cmd[0] == "kill"){
-
+            shell_instance.kill_shell(cmd);
         }else if(cmd[0] == "resume"){
 
         }else if(cmd[0] == "sleep"){

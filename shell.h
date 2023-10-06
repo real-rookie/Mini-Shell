@@ -20,7 +20,7 @@ public:
 public:
     void exit_shell();
     void jobs_shell();
-    void kill_shell();
+    void kill_shell(std::vector<std::string> cmd);
     void resume_shell();
     void sleep_shell();
     void suspend_shell();
