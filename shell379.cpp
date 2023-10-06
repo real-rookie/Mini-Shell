@@ -3,8 +3,20 @@
 #include <sstream>
 #include "shell.h"
 
+shell shell_instance;
+
+void on_child_exited(int signum){
+    int status;
+    int pid;
+    while((pid = waitpid(-1, &status, WNOHANG)) > 0){
+        if(WIFEXITED(status)){
+            shell_instance.pcb.erase(pid);
+        }
+    }
+}
+
 int main(){
-    shell shell_instance;
+    signal(SIGCHLD, on_child_exited);
     while(1){
         // save cmd in vector
         std::cout << "\nshell379:  " << std::flush;

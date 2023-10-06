@@ -2,6 +2,7 @@
 #define SHELL_H
 
 #include <vector>
+#include <unordered_map>
 #include <unistd.h>
 #include <iostream>
 #include <cstring>
@@ -13,8 +14,8 @@
 #include "process.h"
 
 class shell{
-private:
-    std::vector<process> pcb;
+public:
+    std::unordered_map<int, process> pcb;
 
 public:
     void exit_shell();
@@ -25,7 +26,6 @@ public:
     void suspend_shell();
     void wait_shell();
     void exec_shell(std::vector<std::string> cmd);
-    void update_pcb();
 
 private:
     std::pair<int, int> get_user_sys_times();

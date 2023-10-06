@@ -4,6 +4,7 @@ void shell::exec_shell(std::vector<std::string> cmd){
     int pid = fork();
     if(pid == 0){
         // child
+
         for(std::vector<std::string>::size_type i = 0; i < cmd.size(); ++i){
             if(cmd[i][0] == '<'){
                 int fd_in = open(cmd[i].substr(1).c_str(), O_RDONLY);
@@ -34,10 +35,12 @@ void shell::exec_shell(std::vector<std::string> cmd){
         }
     } else if(pid == -1){
         // fork failed
+
         perror("fork() failed!");
         return;
     } else {
         // parent
+        
         if(cmd[cmd.size() - 1] != "&"){
             // foreground
             waitpid(pid, nullptr, 0);
@@ -45,12 +48,12 @@ void shell::exec_shell(std::vector<std::string> cmd){
         }
 
         // background
+
         std::string cmd_str;
         for(auto s : cmd){
             cmd_str.append(s + " ");
         }
-        pcb.emplace_back(process(pid, "R", cmd_str));
-        // FIXME child process becomes a zombie process
+        pcb.emplace(pid, process(pid, "R", cmd_str));
     }
 }
 
@@ -64,28 +67,13 @@ std::pair<int, int> shell::get_user_sys_times(){
     return {usage.ru_utime.tv_sec, usage.ru_stime.tv_sec};
 }
 
-void shell::update_pcb(){
-    pcb.erase(std::remove_if(pcb.begin(), pcb.end(),
-        [](process p){
-            return shell::get_real_time(p.pid) == -1;
-        }
-    ), pcb.end());
-}
-
 int shell::get_real_time(int pid){
     std::string ps_cmd = "ps --pid " + std::to_string(pid);
     FILE* pipe = popen(ps_cmd.c_str(), "r");
     char buf[255];
     fgets(buf, 255, pipe); // throws away the first line
     fgets(buf, 255, pipe);
-    // if(feof(pipe)){
-    //     // there is only one line
-    //     // returns -1 to indicate the process has exited
-    //     pclose(pipe);
-    //     return -1;
-    // }
-    if(strcmp(buf + (strlen(buf) - 10), "<defunct>\n") == 0){
-        waitpid(pid, nullptr, 0);
+    if(feof(pipe)){
         pclose(pipe);
         return -1;
     }
@@ -106,11 +94,10 @@ void shell::jobs_shell(){
     std::ostringstream msg;
     msg << "Running processes:" << std::endl;
     msg << "#\tPID\tS\tSEC\tCOMMAND" << std::endl;
-    update_pcb();
-    for(std::vector<process>::size_type i = 0; i < pcb.size(); ++i){
-        process p = pcb[i];
-        msg << i << ":\t" << p.pid << '\t' << p.state
-            << '\t' << shell::get_real_time(p.pid) << '\t' << p.cmd << std::endl;
+    int i = 0;
+    for(auto p : pcb){
+        msg << i << ":\t" << p.first << '\t' << p.second.state
+            << '\t' << shell::get_real_time(p.first) << '\t' << p.second.cmd << std::endl;
     }
     msg << "Processes =\t" << pcb.size() << "\tactive" << std::endl;
     msg << "Completed processes:" << std::endl;
