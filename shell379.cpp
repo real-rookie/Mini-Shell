@@ -5,7 +5,7 @@
 
 shell shell_instance;
 
-void on_child_exited(int signum){
+void on_child_terminating(int signum){
     int status;
     int pid;
     while((pid = waitpid(-1, &status, WNOHANG)) > 0){
@@ -16,7 +16,7 @@ void on_child_exited(int signum){
 }
 
 int main(){
-    signal(SIGCHLD, on_child_exited);
+    signal(SIGCHLD, on_child_terminating);
     while(1){
         // save cmd in vector
         std::cout << "\nshell379:  " << std::flush;

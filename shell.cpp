@@ -4,15 +4,28 @@ void shell::exec_shell(std::vector<std::string> cmd){
     int pid = fork();
     if(pid == 0){
         // child
-
         for(std::vector<std::string>::size_type i = 0; i < cmd.size(); ++i){
             if(cmd[i][0] == '<'){
-                int fd_in = open(cmd[i].substr(1).c_str(), O_RDONLY);
-                dup2(fd_in, STDIN_FILENO);
+                int fd_in;
+                if((fd_in = open(cmd[i].substr(1).c_str(), O_RDONLY)) == -1){
+                    perror("failed to open redirected input");
+                    exit(EXIT_FAILURE);
+                }
+                if(dup2(fd_in, STDIN_FILENO) == -1){
+                    perror("failed to duplicate fd to redirect input");
+                    exit(EXIT_FAILURE);
+                }
                 cmd[i].clear();
             } else if(cmd[i][0] == '>'){
-                int fd_out = open(cmd[i].substr(1).c_str(), O_CREAT|O_WRONLY|O_TRUNC, S_IRWXU);
-                dup2(fd_out, STDOUT_FILENO);
+                int fd_out;
+                if((fd_out = open(cmd[i].substr(1).c_str(), O_CREAT|O_WRONLY|O_TRUNC, S_IRWXU)) == -1){
+                    perror("failed to open redirected output");
+                    exit(EXIT_FAILURE);
+                }
+                if(dup2(fd_out, STDOUT_FILENO) == -1){
+                    perror("failed to duplicate fd to redirect output");
+                    exit(EXIT_FAILURE);
+                }
                 cmd[i].clear();
             } else if(cmd[i][0] == '&'){
                 cmd[i].clear();
@@ -35,12 +48,10 @@ void shell::exec_shell(std::vector<std::string> cmd){
         }
     } else if(pid == -1){
         // fork failed
-
         perror("fork() failed!");
         return;
     } else {
         // parent
-        
         if(cmd[cmd.size() - 1] != "&"){
             // foreground
             waitpid(pid, nullptr, 0);
@@ -48,7 +59,6 @@ void shell::exec_shell(std::vector<std::string> cmd){
         }
 
         // background
-
         std::string cmd_str;
         for(auto s : cmd){
             cmd_str.append(s + " ");
@@ -63,21 +73,32 @@ std::pair<int, int> shell::get_user_sys_times(){
     int who = RUSAGE_CHILDREN;
     if(getrusage(who, &usage) == -1){
         perror("sys call getrusage() failed!");
+        exit(EXIT_FAILURE);
     }
     return {usage.ru_utime.tv_sec, usage.ru_stime.tv_sec};
 }
 
 int shell::get_real_time(int pid){
     std::string ps_cmd = "ps --pid " + std::to_string(pid);
-    FILE* pipe = popen(ps_cmd.c_str(), "r");
+    FILE* pipe;
+    if((pipe = popen(ps_cmd.c_str(), "r")) == nullptr){
+        perror("failed to open a pipe");
+        exit(EXIT_FAILURE);
+    }
     char buf[255];
     fgets(buf, 255, pipe); // throws away the first line
     fgets(buf, 255, pipe);
     if(feof(pipe)){
-        pclose(pipe);
+        if(pclose(pipe) == -1){
+            perror("failed to close a pipe");
+            exit(EXIT_FAILURE);
+        }
         return -1;
     }
-    pclose(pipe);
+    if(pclose(pipe) == -1){
+        perror("failed to close a pipe");
+        exit(EXIT_FAILURE);
+    }
     std::istringstream iss(buf);
     std::string token;
     for(int i = 0; i < 3; ++i){
