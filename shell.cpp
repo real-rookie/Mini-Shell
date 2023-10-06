@@ -13,6 +13,8 @@ void shell::exec_shell(std::vector<std::string> cmd){
                 int fd_out = open(cmd[i].substr(1).c_str(), O_CREAT|O_WRONLY|O_TRUNC, S_IRWXU);
                 dup2(fd_out, STDOUT_FILENO);
                 cmd[i].clear();
+            } else if(cmd[i][0] == '&'){
+                cmd[i].clear();
             }
         }
         char tokens[8][21];
@@ -26,7 +28,7 @@ void shell::exec_shell(std::vector<std::string> cmd){
             }
         }
         token_ptrs[temp_token_idx] = nullptr;        
-        if(execve(token_ptrs[0], token_ptrs + 1, nullptr) == -1){
+        if(execvp(token_ptrs[0], token_ptrs) == -1){
             perror("execve() failed!");
             exit(EXIT_FAILURE);
         }
