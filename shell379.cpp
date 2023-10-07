@@ -40,13 +40,13 @@ int main(){
         }else if(cmd[0] == "kill"){
             shell_instance.kill_shell(cmd);
         }else if(cmd[0] == "resume"){
-
+            shell_instance.resume_shell(cmd);
         }else if(cmd[0] == "sleep"){
 
         }else if(cmd[0] == "suspend"){
-
+            shell_instance.suspend_shell(cmd);
         }else if(cmd[0] == "wait"){
-
+            shell_instance.wait_shell(cmd);
         }else{
             shell_instance.exec_shell(cmd);
         }

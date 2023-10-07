@@ -8,6 +8,7 @@ public:
     int pid;
     std::string state;
     std::string cmd;
+    process() = default;
     process(int pid, std::string state, std::string cmd);
 };
 

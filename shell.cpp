@@ -149,9 +149,68 @@ void shell::kill_shell(std::vector<std::string> cmd){
     int pid;
     for(std::vector<std::string>::size_type i = 1; i < cmd.size(); ++i){
         pid = std::stoi(cmd[i]);
+        if(pcb.find(pid) == pcb.end()){
+            continue;
+        }
         if(kill(pid, SIGTERM) == -1){
             perror("failed to kill process " + pid);
             exit(EXIT_FAILURE);
         }
     }
+}
+
+void shell::suspend_shell(std::vector<std::string> cmd){
+    if(cmd.size() == 1){
+        std::cout << "Please specify at least a pid" << std::endl;
+        return;
+    }
+    int pid;
+    for(std::vector<std::string>::size_type i = 1; i < cmd.size(); ++i){
+        pid = std::stoi(cmd[i]);
+        if(pcb.find(pid) == pcb.end()){
+            continue;
+        }
+        if(kill(pid, SIGSTOP) == -1){
+            perror("failed to stop process " + pid);
+            exit(EXIT_FAILURE);
+        }
+        pcb[pid].state = "S";
+    }
+}
+
+void shell::resume_shell(std::vector<std::string> cmd){
+    if(cmd.size() == 1){
+        std::cout << "Please specify at least a pid" << std::endl;
+        return;
+    }
+    int pid;
+    for(std::vector<std::string>::size_type i = 1; i < cmd.size(); ++i){
+        pid = std::stoi(cmd[i]);
+        if(pcb.find(pid) == pcb.end()){
+            continue;
+        }
+        if(kill(pid, SIGCONT) == -1){
+            perror("failed to resume process " + pid);
+            exit(EXIT_FAILURE);
+        }
+        pcb[pid].state = "R";
+    }
+}
+
+void shell::wait_shell(std::vector<std::string> cmd){
+    if(cmd.size() == 1){
+        std::cout << "Please specify a pid" << std::endl;
+        return;
+    }
+    int pid = std::stoi(cmd[1]);
+    if(pcb.find(pid) == pcb.end()){
+        return;
+    }
+    if(waitpid(pid, nullptr, 0) > 0){
+        pcb.erase(pid);
+    } else {
+        perror("failed to wait for process " + pid);
+        exit(EXIT_FAILURE);
+    }
+
 }
