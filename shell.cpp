@@ -1,6 +1,6 @@
 #include "shell.h"
 
-void shell::exec_shell(std::vector<std::string> cmd){
+void shell::exec_shell(std::vector<std::string> &cmd){
     int pid = fork();
     if(pid == 0){
         // child
@@ -141,7 +141,7 @@ void shell::exit_shell(){
     exit(EXIT_SUCCESS);
 }
 
-void shell::kill_shell(std::vector<std::string> cmd){
+void shell::kill_shell(std::vector<std::string> &cmd){
     if(cmd.size() == 1){
         std::cout << "Please specify at least a pid" << std::endl;
         return;
@@ -159,7 +159,7 @@ void shell::kill_shell(std::vector<std::string> cmd){
     }
 }
 
-void shell::suspend_shell(std::vector<std::string> cmd){
+void shell::suspend_shell(std::vector<std::string> &cmd){
     if(cmd.size() == 1){
         std::cout << "Please specify at least a pid" << std::endl;
         return;
@@ -178,7 +178,7 @@ void shell::suspend_shell(std::vector<std::string> cmd){
     }
 }
 
-void shell::resume_shell(std::vector<std::string> cmd){
+void shell::resume_shell(std::vector<std::string> &cmd){
     if(cmd.size() == 1){
         std::cout << "Please specify at least a pid" << std::endl;
         return;
@@ -197,7 +197,7 @@ void shell::resume_shell(std::vector<std::string> cmd){
     }
 }
 
-void shell::wait_shell(std::vector<std::string> cmd){
+void shell::wait_shell(std::vector<std::string> &cmd){
     if(cmd.size() == 1){
         std::cout << "Please specify a pid" << std::endl;
         return;
@@ -212,5 +212,13 @@ void shell::wait_shell(std::vector<std::string> cmd){
         perror("failed to wait for process " + pid);
         exit(EXIT_FAILURE);
     }
+}
 
+void shell::sleep_shell(std::vector<std::string> &cmd){
+    if(cmd.size() == 1){
+        std::cout << "Please specify a duration" << std::endl;
+        return;
+    }
+    int duration = std::stoi(cmd[1]);
+    sleep(duration);
 }

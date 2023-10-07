@@ -42,7 +42,7 @@ int main(){
         }else if(cmd[0] == "resume"){
             shell_instance.resume_shell(cmd);
         }else if(cmd[0] == "sleep"){
-
+            shell_instance.sleep_shell(cmd);
         }else if(cmd[0] == "suspend"){
             shell_instance.suspend_shell(cmd);
         }else if(cmd[0] == "wait"){
