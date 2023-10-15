@@ -15,6 +15,10 @@ void shell::exec_shell(std::vector<std::string> &cmd){
                     perror("failed to duplicate fd to redirect input");
                     exit(EXIT_FAILURE);
                 }
+                if(close(fd_in) == -1){
+                    perror("failed to close fd_in");
+                    exit(EXIT_FAILURE);
+                }
                 cmd[i].clear();
             } else if(cmd[i][0] == '>'){
                 int fd_out;
@@ -24,6 +28,10 @@ void shell::exec_shell(std::vector<std::string> &cmd){
                 }
                 if(dup2(fd_out, STDOUT_FILENO) == -1){
                     perror("failed to duplicate fd to redirect output");
+                    exit(EXIT_FAILURE);
+                }
+                if(close(fd_out) == -1){
+                    perror("failed to close fd_out");
                     exit(EXIT_FAILURE);
                 }
                 cmd[i].clear();
