@@ -15,5 +15,25 @@ Supported commands:
 $ make
 $ ./shell379
 shell379:  jobs
-shell379:  ls -la
+Running processes:
+#	PID	S	SEC	COMMAND
+Processes =	0	active
+Completed processes:
+User time =	0	seconds
+System time =	0	seconds
+
+
+shell379:  cat in.txt
+testtesttest
+test
+
+shell379:  cat out.txt
+nothing
+
+shell379:  cat <in.txt >out.txt
+
+shell379:  cat out.txt
+testtesttest
+test
+
 ```
